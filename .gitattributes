@@ -1,2 +1,23 @@
-# Auto detect text files and perform LF normalization
+# Set default behavior to automatically normalize line endings
 * text=auto
+
+# Explicitly declare text files you want to always be normalized and converted
+*.cs text
+*.shader text
+*.txt text
+*.json text
+*.xml text
+*.yml text
+*.md text
+
+# Declare binary files to ensure they are not converted
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.tga binary
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.dll binary
+*.exe binary
+*.unitypackage binary
