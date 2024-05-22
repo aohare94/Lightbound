@@ -13,14 +13,13 @@ git lfs track "*.a"
 git lfs track "*.lib"
 git lfs track "*.exe"
 
-REM Add all changes
+REM Add all changes, including untracked files
 git add .
-git add .gitattributes
 
 REM Commit changes with "Auto commit" message
 git commit -m "Auto commit"
 
-REM Push changes to the remote repository on the master branch
+REM Push changes to the remote repository on the main branch
 git push origin main
 
 REM Pause to see the result (optional)
