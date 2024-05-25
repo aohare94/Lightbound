@@ -15,6 +15,7 @@ public class WillowAnimationSetup : MonoBehaviour
             Debug.LogError("Animator component is not found or assigned.");
             return;
         }
+
         SetupAnimator();
     }
 
@@ -27,12 +28,12 @@ public class WillowAnimationSetup : MonoBehaviour
         controller.AddParameter("Vertical", AnimatorControllerParameterType.Float);
         controller.AddParameter("Speed", AnimatorControllerParameterType.Float);
 
-        AddAnimationState(controller, "WillowIdleS", "Assets/Animations/Willow/Idle/IdleS.aseprite");
-        AddAnimationState(controller, "WillowIdleN", "Assets/Animations/Willow/Idle/IdleN.aseprite");
-        AddAnimationState(controller, "WillowIdleWE", "Assets/Animations/Willow/Idle/IdleWE.aseprite");
-        AddAnimationState(controller, "WillowWalkS", "Assets/Animations/Willow/Walk/WalkS.aseprite");
-        AddAnimationState(controller, "WillowWalkN", "Assets/Animations/Willow/Walk/WalkN.aseprite");
-        AddAnimationState(controller, "WillowWalkWE", "Assets/Animations/Willow/Walk/WalkWE.aseprite");
+        AddAnimationState(controller, "WillowIdleS", "Assets/Animations/Willow/Idle/IdleS_Clip");
+        AddAnimationState(controller, "WillowIdleN", "Assets/Animations/Willow/Idle/IdleN_Clip");
+        AddAnimationState(controller, "WillowIdleWE", "Assets/Animations/Willow/Idle/IdleWE_Clip");
+        AddAnimationState(controller, "WillowWalkS", "Assets/Animations/Willow/Walk/WalkS_Clip");
+        AddAnimationState(controller, "WillowWalkN", "Assets/Animations/Willow/Walk/WalkN_Clip");
+        AddAnimationState(controller, "WillowWalkWE", "Assets/Animations/Willow/Walk/WalkWE_Clip");
 
         SetupTransitions(controller);
 
@@ -43,20 +44,27 @@ public class WillowAnimationSetup : MonoBehaviour
     void AddAnimationState(AnimatorController controller, string stateName, string path)
     {
         var state = controller.layers[0].stateMachine.AddState(stateName);
-        AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
-        state.motion = clip;
+        AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path + ".anim");
+        if (clip != null)
+        {
+            state.motion = clip;
+        }
+        else
+        {
+            Debug.LogError($"AnimationClip at path {path}.anim not found.");
+        }
     }
 
     void SetupTransitions(AnimatorController controller)
     {
         var rootStateMachine = controller.layers[0].stateMachine;
 
-        AnimatorState idleStateS = rootStateMachine.states.FirstOrDefault(s => s.state.name == "WillowIdleS").state;
-        AnimatorState walkStateS = rootStateMachine.states.FirstOrDefault(s => s.state.name == "WillowWalkS").state;
-        AnimatorState idleStateN = rootStateMachine.states.FirstOrDefault(s => s.state.name == "WillowIdleN").state;
-        AnimatorState walkStateN = rootStateMachine.states.FirstOrDefault(s => s.state.name == "WillowWalkN").state;
-        AnimatorState idleStateWE = rootStateMachine.states.FirstOrDefault(s => s.state.name == "WillowIdleWE").state;
-        AnimatorState walkStateWE = rootStateMachine.states.FirstOrDefault(s => s.state.name == "WillowWalkWE").state;
+        AnimatorState idleStateS = FindState(rootStateMachine, "WillowIdleS");
+        AnimatorState walkStateS = FindState(rootStateMachine, "WillowWalkS");
+        AnimatorState idleStateN = FindState(rootStateMachine, "WillowIdleN");
+        AnimatorState walkStateN = FindState(rootStateMachine, "WillowWalkN");
+        AnimatorState idleStateWE = FindState(rootStateMachine, "WillowIdleWE");
+        AnimatorState walkStateWE = FindState(rootStateMachine, "WillowWalkWE");
 
         AddTransition(idleStateS, walkStateS, "Speed", 0, true);
         AddTransition(walkStateS, idleStateS, "Speed", 0, false);
@@ -64,6 +72,19 @@ public class WillowAnimationSetup : MonoBehaviour
         AddTransition(walkStateN, idleStateN, "Speed", 0, false);
         AddTransition(idleStateWE, walkStateWE, "Speed", 0, true);
         AddTransition(walkStateWE, idleStateWE, "Speed", 0, false);
+    }
+
+    AnimatorState FindState(AnimatorStateMachine stateMachine, string stateName)
+    {
+        foreach (var state in stateMachine.states)
+        {
+            if (state.state.name == stateName)
+            {
+                return state.state;
+            }
+        }
+        Debug.LogError($"State {stateName} not found.");
+        return null;
     }
 
     void AddTransition(AnimatorState fromState, AnimatorState toState, string parameterName, float threshold, bool greaterThan)
